@@ -20,7 +20,7 @@ app.post("/ocr", async (req, res) => {
     const { data } = await worker.recognize(Buffer.from(base64Image, "base64"));
     await worker.terminate();
 
-    res.json({ text: data.text });
+    res.json({ text: "📌 Section: " + data.text });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "OCR failed" });
@@ -36,7 +36,7 @@ app.post("/summarize", async (req, res) => {
     messages: [
       {
         role: "user",
-        content: `Summarize the following text:\n\n${text}`,
+        content: `You're an AI assistant helping users quickly understand webpages without reading them, act has you have viewed it. Summarize text from Webpage screenshot OCR, focusing on: - Key points and insights - Statistics or numerical data - Key facts or evidence - Any conclusions or recommendations,Use short, clear bullet points. Avoid fluff. Summarize the following text: from webpage\n\n${text}`,
       },
     ],
   });
