@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Page Summary</title>
+    <style>
+      body {
+        font-family: "Segoe UI", sans-serif;
+        background-color: #f9f9f9;
+        padding: 16px;
+        width: 500px;
+        box-sizing: border-box;
+      }
+
+      h3 {
+        font-size: 18px;
+        margin: 0 0 12px;
+        color: #333;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      #summary {
+        background: #fff;
+        padding: 12px;
+        border-radius: 8px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+        max-height: 220px;
+        overflow-y: auto;
+        font-size: 14px;
+        color: #444;
+        line-height: 1.5;
+        white-space: pre-wrap;
+        margin-bottom: 12px;
+      }
+
+      #captureBtn {
+        background-color: #4caf50;
+        color: white;
+        border: none;
+        padding: 10px 16px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 14px;
+        width: 100%;
+        transition: background 0.2s ease-in-out;
+      }
+
+      #captureBtn:hover {
+        background-color: #45a049;
+      }
+
+      #loading {
+        font-size: 14px;
+        color: #888;
+        text-align: center;
+        padding: 20px 0;
+      }
+    </style>
+  </head>
+  <body>
+    <h3>Webpage Summary</h3>
+
+    <div id="summary">Click the button below to summarize this page.</div>
+
+    <button id="captureBtn">Summarize Page</button>
+
+    <script src="popup.js"></script>
+  </body>
+</html>
