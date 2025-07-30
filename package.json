@@ -1,0 +1,9 @@
+{
+  "name": "screenshot-summary-api",
+  "version": "1.0.0",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "cd ./backend && node index.js"
+  }
+}

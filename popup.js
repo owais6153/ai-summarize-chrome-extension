@@ -11,6 +11,10 @@ document.getElementById("captureBtn").addEventListener("click", async () => {
 });
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.type === "SUMMARY_RESULT") {
-    document.getElementById("summary").innerHTML = message.data;
+    const summaryDiv = document.getElementById("summary");
+    summaryDiv.innerHTML = message.data;
+
+    // Scroll to bottom as new content arrives
+    summaryDiv.scrollTop = summaryDiv.scrollHeight;
   }
 });

@@ -2,6 +2,7 @@ import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
 import { OpenAI } from "openai";
+import { createWorker } from "tesseract.js";
 
 dotenv.config();
 const app = express();
@@ -10,46 +11,42 @@ const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 app.use(cors());
 app.use(express.json({ limit: "100mb" }));
 
-app.post("/summarize", async (req, res) => {
+app.post("/ocr", async (req, res) => {
   try {
     const { base64Image } = req.body;
+    if (!base64Image) return res.status(400).json({ error: "Image required" });
 
-    if (!base64Image)
-      return res.status(400).json({ error: "Image is required." });
+    const worker = await createWorker("eng");
+    const { data } = await worker.recognize(Buffer.from(base64Image, "base64"));
+    await worker.terminate();
 
-    const response = await openai.chat.completions.create({
-      model: "gpt-4o",
-      messages: [
-        {
-          role: "user",
-          content: [
-            {
-              type: "text",
-              text: `You're an AI assistant helping users quickly understand long research papers, blogs, and articles without reading them fully. Summarize the visible text and the screenshot together, focusing on: - Key points and insights - Statistics or numerical data - Key facts or evidence - Any conclusions or recommendations,Use short, clear bullet points. Avoid fluff.`,
-            },
-            {
-              type: "image_url",
-              image_url: {
-                url: `data:image/png;base64,${base64Image}`,
-              },
-            },
-          ],
-        },
-      ],
-      max_tokens: 1000,
-    });
-
-    const summary = response.choices[0].message.content;
-    console.log(summary);
-    res.json({
-      summary: summary
-        ?.replace(/\*\*(.*?)\*\*/g, "<b>$1</b>")
-        .replace(/\n/g, "<br>"),
-    });
+    res.json({ text: data.text });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Failed to summarize" });
+    res.status(500).json({ error: "OCR failed" });
   }
+});
+
+app.post("/summarize", async (req, res) => {
+  const { text } = req.body;
+
+  const stream = await openai.chat.completions.create({
+    model: "gpt-4o",
+    stream: true,
+    messages: [
+      {
+        role: "user",
+        content: `Summarize the following text:\n\n${text}`,
+      },
+    ],
+  });
+
+  res.setHeader("Content-Type", "text/plain");
+  for await (const chunk of stream) {
+    const content = chunk.choices[0]?.delta?.content;
+    if (content) res.write(content);
+  }
+  res.end();
 });
 
 const port = process.env.PORT || 3000;
