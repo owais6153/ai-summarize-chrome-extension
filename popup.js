@@ -1,10 +1,40 @@
 const captureBtn = document.getElementById("captureBtn");
 const summaryDiv = document.getElementById("summary");
+const askQuestions = document.getElementById("ask-questions");
+const chatMessages = document.getElementById("chat-messages");
+
+function diableCaptureButton() {
+  captureBtn.disabled = true;
+  captureBtn.textContent = "Summarizing...";
+}
+function enableCaptureButton() {
+  captureBtn.disabled = false;
+}
+function hideCaptureButton() {
+  captureBtn.style.display = "none";
+}
+function displayCaptureButton() {
+  captureBtn.style.display = "block";
+  captureBtn.textContent = "Summarize Page";
+}
+
+function displayAskQuestions() {
+  askQuestions.style.display = "block";
+}
+
+function hideAskQuestions() {
+  askQuestions.style.display = "none";
+}
+
+function resetChatMessages() {
+  chatMessages.innerHTML = "";
+}
 
 captureBtn.addEventListener("click", async () => {
   summaryDiv.textContent = "⏳ Capturing, please wait...";
-  captureBtn.disabled = true;
-  captureBtn.textContent = "Summarizing...";
+  diableCaptureButton();
+  hideAskQuestions();
+  resetChatMessages();
 
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
 
@@ -20,11 +50,16 @@ chrome.runtime.onMessage.addListener((message) => {
     summaryDiv.scrollTop = summaryDiv.scrollHeight;
   }
 
-  // ✅ Re-enable on done or error
-  if (message.type === "SUMMARY_DONE" || message.type === "SUMMARY_ERROR") {
-    if (message.type === "SUMMARY_ERROR") summaryDiv.innerHTML = message.data;
+  if (message.type === "SUMMARY_DONE") {
+    hideCaptureButton();
+    displayAskQuestions();
+  }
 
-    captureBtn.disabled = false;
-    captureBtn.textContent = "Summarize Page";
+  if (message.type === "SUMMARY_ERROR") {
+    summaryDiv.innerHTML = message.data;
+
+    enableCaptureButton();
+    displayCaptureButton();
+    hideAskQuestions();
   }
 });
